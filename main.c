@@ -1,9 +1,29 @@
 #include <stdio.h>
 #include <curses.h>
+#include <string.h>
+
+#define GREEN_TEXT 1
+#define RED_TEXT 2
+#define RESET_COLOR 3
+
+const char short_text[] = "hello world";
 
 int main(void)
 {
-    // code
+    size_t short_text_length = strlen(short_text);
+    int user_char;
+    initscr();
+    start_color();                                   // Enable color support
+    init_pair(GREEN_TEXT, COLOR_GREEN, COLOR_BLACK); // Define color pair for green
+    init_pair(RED_TEXT, COLOR_RED, COLOR_BLACK);     // Define color pair for red
+
+    noecho(); // hide user input echo
+    int x = 0;
+    int y = 0;
+
+    printw("%s\n", short_text);
+    move(y, x); // move cursor to top of first letter
+
     while ((user_char = getch()) != '\n')
     {
         //  clear();
@@ -39,4 +59,8 @@ int main(void)
         // Refresh the screen
         // refresh();
     }
+
+    endwin();
+
+    return 0;
 }
