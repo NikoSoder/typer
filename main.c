@@ -13,6 +13,7 @@ int main(void)
     size_t short_text_length = strlen(short_text);
     int user_char;
     initscr();
+    keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
     start_color();                                   // Enable color support
     init_pair(GREEN_TEXT, COLOR_GREEN, COLOR_BLACK); // Define color pair for green
     init_pair(RED_TEXT, COLOR_RED, COLOR_BLACK);     // Define color pair for red
@@ -41,10 +42,20 @@ int main(void)
         }
         else if (user_char != short_text[x])
         {
-            attron(COLOR_PAIR(RED_TEXT));
-            printw("%c", user_char);
-            attroff(COLOR_PAIR(RED_TEXT));
-            x++;
+            if (user_char == KEY_BACKSPACE)
+            {
+                // todo don't move cursor if on first character
+                x--;
+                move(y, x);
+                printw("%c", short_text[x]);
+            }
+            else
+            {
+                attron(COLOR_PAIR(RED_TEXT));
+                printw("%c", user_char);
+                attroff(COLOR_PAIR(RED_TEXT));
+                x++;
+            }
         }
 
         // break if end of text
