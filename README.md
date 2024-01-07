@@ -7,3 +7,10 @@ compile:
 run executable file with:
 
 `./main`
+
+## TODO
+
+- [ ] Handle wrong character when on SPACE
+- [ ] Handle SPACE on character
+- [ ] Track mistakes
+- [ ] Track words per minute
