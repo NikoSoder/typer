@@ -10,7 +10,8 @@ run executable file with:
 
 ## TODO
 
-- [ ] Handle wrong character when on SPACE
-- [ ] Handle SPACE on character
+- [x] Handle wrong character when on SPACE
+- [x] Handle SPACE on character
+- [ ] Handle backspace when on first char
 - [ ] Track mistakes
 - [ ] Track words per minute
