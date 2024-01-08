@@ -2,7 +2,7 @@
 
 compile:
 
-`gcc main.c -o main -lncurses`
+`gcc main.c -o main -lncurses -lm`
 
 run executable file with:
 

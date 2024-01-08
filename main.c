@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <curses.h>
 #include <string.h>
+#include <sys/time.h>
+#include <math.h>
 
 #define GREEN_TEXT 1
 #define RED_TEXT 2
@@ -9,6 +11,7 @@
 #define UNDERSCORE '_'
 
 const char short_text[] = "hello world";
+struct timeval start, end;
 
 void handle_color_change(char character, int color)
 {
@@ -33,6 +36,10 @@ int main(void)
 
     printw("%s\n", short_text);
     move(y, x); // move cursor to top of first letter
+
+    // Get the initial time-stamp
+    // todo start timer only when user starts typing
+    gettimeofday(&start, NULL);
 
     while ((user_char = getch()) != '\n')
     {
@@ -93,6 +100,19 @@ int main(void)
     }
 
     endwin();
+
+    //  Get the final time-stamp
+    gettimeofday(&end, NULL);
+
+    // Calculate the elapsed time in milliseconds
+    double t_ms = (double)(end.tv_sec - start.tv_sec) * 1000.0 +
+                  (double)(end.tv_usec - start.tv_usec) / 1000.0;
+
+    // Convert time to seconds with one decimal place
+    double t_seconds = round(t_ms / 1000.0 * 10.0) / 10.0;
+
+    printf("Took %.1f milliseconds to execute \n", t_ms);
+    printf("Took %.1f seconds to execute \n", t_seconds);
 
     return 0;
 }
