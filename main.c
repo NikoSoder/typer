@@ -10,6 +10,13 @@
 
 const char short_text[] = "hello world";
 
+void handle_color_change(char character, int color)
+{
+    attron(COLOR_PAIR(color)); // Turn on color
+    printw("%c", character);
+    attroff(COLOR_PAIR(color)); // Turn off color
+}
+
 int main(void)
 {
     size_t short_text_length = strlen(short_text);
@@ -39,9 +46,7 @@ int main(void)
         // if RIGHT char
         if (user_char == short_text[x])
         {
-            attron(COLOR_PAIR(GREEN_TEXT)); // Turn on color
-            printw("%c", user_char);
-            attroff(COLOR_PAIR(GREEN_TEXT)); // Turn off color
+            handle_color_change(user_char, GREEN_TEXT);
             x++;
         }
         // if WRONG char
@@ -56,26 +61,19 @@ int main(void)
             }
             else if (user_char == SPACE)
             {
-                attron(COLOR_PAIR(RED_TEXT));
-                printw("%c", short_text[x]);
-                attroff(COLOR_PAIR(RED_TEXT));
+                handle_color_change(short_text[x], RED_TEXT);
                 x++;
             }
             else
             {
                 if (short_text[x] == SPACE)
                 {
-                    /* code */
-                    attron(COLOR_PAIR(RED_TEXT));
-                    printw("%c", UNDERSCORE);
-                    attroff(COLOR_PAIR(RED_TEXT));
+                    handle_color_change(UNDERSCORE, RED_TEXT);
                     x++;
                 }
                 else
                 {
-                    attron(COLOR_PAIR(RED_TEXT));
-                    printw("%c", short_text[x]);
-                    attroff(COLOR_PAIR(RED_TEXT));
+                    handle_color_change(short_text[x], RED_TEXT);
                     x++;
                 }
             }
