@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <math.h>
+#include <ctype.h>
 
 #define GREEN_TEXT 1
 #define RED_TEXT 2
@@ -12,6 +13,35 @@
 
 const char short_text[] = "hello world";
 struct timeval start, end;
+
+// not the best solution to count words but works for now
+int count_words(const char *text)
+{
+    int word_count = 0;
+    for (int i = 0; i < strlen(text); i++)
+    {
+        if (isspace(text[i]))
+        {
+            word_count += 1;
+        }
+    }
+    // count last word
+    word_count++;
+
+    return word_count;
+}
+
+void calculate_words_per_minute(double seconds)
+{
+    int total_words = count_words(short_text);
+    printf("Total words %d\n", total_words);
+
+    // Convert time to minutes and calculate WPM
+    double time_taken_minutes = seconds / 60.0;
+    int wpm = round((double)total_words / time_taken_minutes);
+
+    printf("Words per minute wpm: %d\n", wpm);
+}
 
 void handle_color_change(char character, int color)
 {
@@ -119,6 +149,7 @@ int main(void)
 
     printf("Took %.1f milliseconds to execute \n", t_ms);
     printf("Took %.1f seconds to execute \n", t_seconds);
+    calculate_words_per_minute(t_seconds);
 
     return 0;
 }
