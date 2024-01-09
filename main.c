@@ -64,10 +64,13 @@ int main(void)
         {
             if (user_char == KEY_BACKSPACE)
             {
-                // todo don't move cursor if on first character
-                x--;
-                move(y, x);
-                printw("%c", short_text[x]);
+                // don't move cursor if on first character
+                if (x > 0)
+                {
+                    x--;
+                    move(y, x);
+                    printw("%c", short_text[x]);
+                }
             }
             else if (user_char == SPACE)
             {

@@ -12,6 +12,6 @@ run executable file with:
 
 - [x] Handle wrong character when on SPACE
 - [x] Handle SPACE on character
-- [ ] Handle backspace when on first char
+- [x] Handle backspace when on first char
 - [ ] Track mistakes
 - [ ] Track words per minute
