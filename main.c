@@ -23,6 +23,7 @@ void handle_color_change(char character, int color)
 int main(void)
 {
     size_t short_text_length = strlen(short_text);
+    bool timer_started = false;
     int user_char;
     initscr();
     keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
@@ -37,10 +38,6 @@ int main(void)
     printw("%s\n", short_text);
     move(y, x); // move cursor to top of first letter
 
-    // Get the initial time-stamp
-    // todo start timer only when user starts typing
-    gettimeofday(&start, NULL);
-
     while ((user_char = getch()) != '\n')
     {
         //  clear();
@@ -48,6 +45,12 @@ int main(void)
         // y++; DOWN
         // x--; LEFT
         // x++; RIGHT
+        if (!timer_started)
+        {
+            // Get the initial time-stamp
+            gettimeofday(&start, NULL);
+            timer_started = true;
+        }
 
         // todo clean up nesting
         // if RIGHT char
