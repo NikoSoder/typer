@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <curses.h>
 #include <string.h>
+#include <time.h>
 #include <sys/time.h>
 #include <math.h>
 #include <ctype.h>
+#include "quotes.h"
 
 #define GREEN_TEXT 1
 #define RED_TEXT 2
@@ -11,7 +14,6 @@
 #define SPACE ' '
 #define UNDERSCORE '_'
 
-const char short_text[] = "hello world";
 struct timeval start, end;
 
 // not the best solution to count words but works for now
@@ -31,9 +33,9 @@ int count_words(const char *text)
     return word_count;
 }
 
-void calculate_words_per_minute(double seconds)
+void calculate_words_per_minute(double seconds, const char *quote)
 {
-    int total_words = count_words(short_text);
+    int total_words = count_words(quote);
     printf("Total words %d\n", total_words);
 
     // Convert time to minutes and calculate WPM
@@ -50,9 +52,20 @@ void handle_color_change(char character, int color)
     attroff(COLOR_PAIR(color)); // Turn off color
 }
 
+const char *get_quote()
+{
+    // Seed the random number generator with the current time
+    srand(time(NULL));
+    int length_of_quotes = sizeof(quotes) / sizeof(quotes[0]);
+    int random_index = rand() % length_of_quotes;
+
+    return quotes[random_index];
+}
+
 int main(void)
 {
-    size_t short_text_length = strlen(short_text);
+    const char *quote = get_quote();
+    size_t quote_length = strlen(quote);
     bool timer_started = false;
     int user_char;
     initscr();
@@ -65,7 +78,7 @@ int main(void)
     int x = 0;
     int y = 0;
 
-    printw("%s\n", short_text);
+    printw("%s\n", quote);
     move(y, x); // move cursor to top of first letter
 
     while ((user_char = getch()) != '\n')
@@ -84,13 +97,13 @@ int main(void)
 
         // todo clean up nesting
         // if RIGHT char
-        if (user_char == short_text[x])
+        if (user_char == quote[x])
         {
             handle_color_change(user_char, GREEN_TEXT);
             x++;
         }
         // if WRONG char
-        else if (user_char != short_text[x])
+        else if (user_char != quote[x])
         {
             if (user_char == KEY_BACKSPACE)
             {
@@ -99,31 +112,31 @@ int main(void)
                 {
                     x--;
                     move(y, x);
-                    printw("%c", short_text[x]);
+                    printw("%c", quote[x]);
                 }
             }
             else if (user_char == SPACE)
             {
-                handle_color_change(short_text[x], RED_TEXT);
+                handle_color_change(quote[x], RED_TEXT);
                 x++;
             }
             else
             {
-                if (short_text[x] == SPACE)
+                if (quote[x] == SPACE)
                 {
                     handle_color_change(UNDERSCORE, RED_TEXT);
                     x++;
                 }
                 else
                 {
-                    handle_color_change(short_text[x], RED_TEXT);
+                    handle_color_change(quote[x], RED_TEXT);
                     x++;
                 }
             }
         }
 
         // break if end of text
-        if (x == short_text_length)
+        if (x == quote_length)
         {
             break;
         }
@@ -149,7 +162,7 @@ int main(void)
 
     printf("Took %.1f milliseconds to execute \n", t_ms);
     printf("Took %.1f seconds to execute \n", t_seconds);
-    calculate_words_per_minute(t_seconds);
+    calculate_words_per_minute(t_seconds, quote);
 
     return 0;
 }
