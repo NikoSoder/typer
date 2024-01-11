@@ -15,3 +15,4 @@ run executable file with:
 - [x] Handle backspace when on first char
 - [ ] Track mistakes
 - [x] Track words per minute
+- [x] Add multiple quotes
