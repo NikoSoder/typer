@@ -33,9 +33,10 @@ int count_words(const char *text)
     return word_count;
 }
 
-void calculate_words_per_minute(double seconds, const char *quote)
+void calculate_words_per_minute(double seconds, const char *quote, int mistakes)
 {
     int total_words = count_words(quote);
+    total_words = total_words - mistakes;
     printf("Total words %d\n", total_words);
 
     // Convert time to minutes and calculate WPM
@@ -81,6 +82,12 @@ int main(void)
     printw("%s\n", quote);
     move(y, x); // move cursor to top of first letter
 
+    int total_mistakes = 0;
+    // variable to store the current word's length
+    int word_index = 0;
+    // variable to store the earliest index where a mistake occurs within the current word
+    int mistake_on_word = -1;
+
     while ((user_char = getch()) != '\n')
     {
         //  clear();
@@ -101,24 +108,42 @@ int main(void)
         {
             handle_color_change(user_char, GREEN_TEXT);
             x++;
+            word_index++;
+            // reset mistake variables if next word
+            if (user_char == SPACE)
+            {
+                total_mistakes = mistake_on_word > -1 ? ++total_mistakes : total_mistakes;
+                word_index = 0;
+                mistake_on_word = -1;
+            }
         }
         // if WRONG char
         else if (user_char != quote[x])
         {
+            // track earliest mistake on word
+            if (user_char != KEY_BACKSPACE && mistake_on_word == -1)
+            {
+                mistake_on_word = word_index;
+            }
+
             if (user_char == KEY_BACKSPACE)
             {
                 // don't move cursor if on first character
                 if (x > 0)
                 {
                     x--;
+                    word_index--;
                     move(y, x);
                     printw("%c", quote[x]);
+                    // reset mistake_on_word if backspacing earliest mistake
+                    mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
                 }
             }
             else if (user_char == SPACE)
             {
                 handle_color_change(quote[x], RED_TEXT);
                 x++;
+                word_index++;
             }
             else
             {
@@ -126,11 +151,13 @@ int main(void)
                 {
                     handle_color_change(UNDERSCORE, RED_TEXT);
                     x++;
+                    word_index++;
                 }
                 else
                 {
                     handle_color_change(quote[x], RED_TEXT);
                     x++;
+                    word_index++;
                 }
             }
         }
@@ -162,7 +189,8 @@ int main(void)
 
     printf("Took %.1f milliseconds to execute \n", t_ms);
     printf("Took %.1f seconds to execute \n", t_seconds);
-    calculate_words_per_minute(t_seconds, quote);
+    printf("Total mistakes: %d\n", total_mistakes);
+    calculate_words_per_minute(t_seconds, quote, total_mistakes);
 
     return 0;
 }
