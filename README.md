@@ -1,12 +1,12 @@
 ## How to run 
 
-compile:
+Compile:
 
-`gcc main.c -o main -lncurses -lm`
+`gcc main.c quotes.c -o bin/main -lncurses -lm`
 
 run executable file with:
 
-`./main`
+`bin/main`
 
 ## TODO
 
@@ -15,4 +15,7 @@ run executable file with:
 - [x] Handle backspace when on first char
 - [ ] Track mistakes
 - [x] Track words per minute
+- [ ] Create starting screen. (start and quit)
+- [ ] Show personal best (wpm)
 - [x] Add multiple quotes
+- [ ] Write score(wpm) to file
