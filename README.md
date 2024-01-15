@@ -14,6 +14,7 @@ run executable file with:
 - [x] Handle SPACE on character
 - [x] Handle backspace when on first char
 - [ ] Track mistakes
+- [x] Track final word mistake
 - [x] Track words per minute
 - [ ] Create starting screen. (start and quit)
 - [ ] Show personal best (wpm)

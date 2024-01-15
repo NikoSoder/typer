@@ -177,6 +177,12 @@ int main(void)
 
     endwin();
 
+    // Add mistake on final word if there is any
+    if (mistake_on_word > -1)
+    {
+        total_mistakes++;
+    }
+
     //  Get the final time-stamp
     gettimeofday(&end, NULL);
 
