@@ -33,15 +33,17 @@ int count_words(const char *text)
     return word_count;
 }
 
-void calculate_words_per_minute(double seconds, const char *quote, int mistakes)
+void calculate_words_per_minute(double seconds, const char *quote, int mistakes, int correct_words)
 {
-    int total_words = count_words(quote);
-    total_words = total_words - mistakes;
+    int total_words = count_words(quote); // todo remove this if not needed
     printf("Total words %d\n", total_words);
+    total_words = total_words - mistakes;
+    printf("Total words after mistakes %d\n", total_words);
+    printf("Total correct words %d\n", correct_words);
 
     // Convert time to minutes and calculate WPM
     double time_taken_minutes = seconds / 60.0;
-    int wpm = round((double)total_words / time_taken_minutes);
+    int wpm = round((double)correct_words / time_taken_minutes);
 
     printf("Words per minute wpm: %d\n", wpm);
 }
@@ -82,6 +84,7 @@ int main(void)
     printw("%s\n", quote);
     move(y, x); // move cursor to top of first letter
 
+    int total_correct_words = 0;
     int total_mistakes = 0;
     // variable to store the current word's length
     int word_index = 0;
@@ -118,7 +121,8 @@ int main(void)
             // reset mistake variables if next word
             if (user_char == SPACE)
             {
-                total_mistakes = mistake_on_word > -1 ? ++total_mistakes : total_mistakes;
+                total_correct_words = mistake_on_word == -1 ? total_correct_words += 1 : total_correct_words;
+                total_mistakes = mistake_on_word > -1 ? total_mistakes += 1 : total_mistakes;
                 word_index = 0;
                 mistake_on_word = -1;
             }
@@ -188,6 +192,10 @@ int main(void)
     {
         total_mistakes++;
     }
+    if (mistake_on_word == -1)
+    {
+        total_correct_words++;
+    }
 
     //  Get the final time-stamp
     gettimeofday(&end, NULL);
@@ -202,7 +210,7 @@ int main(void)
     printf("Took %.1f milliseconds to execute \n", t_ms);
     printf("Took %.1f seconds to execute \n", t_seconds);
     printf("Total mistakes: %d\n", total_mistakes);
-    calculate_words_per_minute(t_seconds, quote, total_mistakes);
+    calculate_words_per_minute(t_seconds, quote, total_mistakes, total_correct_words);
 
     return 0;
 }
