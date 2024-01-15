@@ -13,7 +13,7 @@ run executable file with:
 - [x] Handle wrong character when on SPACE
 - [x] Handle SPACE on character
 - [x] Handle backspace when on first char
-- [ ] Track mistakes
+- [x] Track mistakes
 - [x] Track final word mistake
 - [x] Don't go back to previous word
 - [x] Track words per minute
@@ -21,3 +21,7 @@ run executable file with:
 - [ ] Show personal best (wpm)
 - [x] Add multiple quotes
 - [ ] Write score(wpm) to file
+
+## Known bugs
+
+- Quote on multiple lines doesn't work
