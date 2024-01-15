@@ -102,6 +102,12 @@ int main(void)
             timer_started = true;
         }
 
+        // don't go back if on first letter
+        if (user_char == KEY_BACKSPACE && word_index == 0)
+        {
+            continue;
+        }
+
         // todo clean up nesting
         // if RIGHT char
         if (user_char == quote[x])
@@ -129,15 +135,15 @@ int main(void)
             if (user_char == KEY_BACKSPACE)
             {
                 // don't move cursor if on first character
-                if (x > 0)
-                {
-                    x--;
-                    word_index--;
-                    move(y, x);
-                    printw("%c", quote[x]);
-                    // reset mistake_on_word if backspacing earliest mistake
-                    mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
-                }
+                // if (x > 0)
+                // {
+                x--;
+                word_index--;
+                move(y, x);
+                printw("%c", quote[x]);
+                // reset mistake_on_word if backspacing earliest mistake
+                mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
+                // }
             }
             else if (user_char == SPACE)
             {
