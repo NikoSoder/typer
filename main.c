@@ -140,7 +140,17 @@ int main(void)
                 mistake_on_word = word_index;
             }
 
-            if (user_char == KEY_BACKSPACE)
+            if (user_char == KEY_BACKSPACE && x == 0)
+            {
+                y--;
+                x = max_width - 1;
+                word_index--;
+                quote_char_index--;
+                move(y, x);
+                printw("%c", quote[quote_char_index]);
+                mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
+            }
+            else if (user_char == KEY_BACKSPACE)
             {
                 // don't move cursor if on first character
                 // if (x > 0)
@@ -179,7 +189,7 @@ int main(void)
                 }
             }
         }
-        if (x == max_width)
+        if (x == max_width && user_char != KEY_BACKSPACE)
         {
             y++;
             x = 0;

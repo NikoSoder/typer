@@ -21,7 +21,7 @@ run executable file with:
 - [ ] Show personal best (wpm)
 - [x] Add multiple quotes
 - [ ] Write score(wpm) to file
+- [x] Fix quote on multiple lines
+- [x] Fix backspace on multiple lines
 
 ## Known bugs
-
-- Quote on multiple lines doesn't work
