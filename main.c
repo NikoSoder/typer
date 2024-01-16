@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <curses.h>
 #include <string.h>
-#include <time.h>
 #include <sys/time.h>
 #include <math.h>
 #include <ctype.h>
@@ -53,16 +52,6 @@ void handle_color_change(char character, int color)
     attron(COLOR_PAIR(color)); // Turn on color
     printw("%c", character);
     attroff(COLOR_PAIR(color)); // Turn off color
-}
-
-const char *get_quote()
-{
-    // Seed the random number generator with the current time
-    srand(time(NULL));
-    int length_of_quotes = sizeof(quotes) / sizeof(quotes[0]);
-    int random_index = rand() % length_of_quotes;
-
-    return quotes[random_index];
 }
 
 int main(void)
