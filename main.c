@@ -70,8 +70,10 @@ int main(void)
     const char *quote = get_quote();
     size_t quote_length = strlen(quote);
     bool timer_started = false;
+    int max_width, max_height;
     int user_char;
     initscr();
+    getmaxyx(stdscr, max_height, max_width);         // Get terminal height and width
     keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
     start_color();                                   // Enable color support
     init_pair(GREEN_TEXT, COLOR_GREEN, COLOR_BLACK); // Define color pair for green
@@ -80,6 +82,7 @@ int main(void)
     noecho(); // hide user input echo
     int x = 0;
     int y = 0;
+    int quote_char_index = 0;
 
     printw("%s\n", quote);
     move(y, x); // move cursor to top of first letter
@@ -113,10 +116,11 @@ int main(void)
 
         // todo clean up nesting
         // if RIGHT char
-        if (user_char == quote[x])
+        if (user_char == quote[quote_char_index])
         {
             handle_color_change(user_char, GREEN_TEXT);
             x++;
+            quote_char_index++;
             word_index++;
             // reset mistake variables if next word
             if (user_char == SPACE)
@@ -128,7 +132,7 @@ int main(void)
             }
         }
         // if WRONG char
-        else if (user_char != quote[x])
+        else if (user_char != quote[quote_char_index])
         {
             // track earliest mistake on word
             if (user_char != KEY_BACKSPACE && mistake_on_word == -1)
@@ -142,38 +146,48 @@ int main(void)
                 // if (x > 0)
                 // {
                 x--;
+                quote_char_index--;
                 word_index--;
                 move(y, x);
-                printw("%c", quote[x]);
+                printw("%c", quote[quote_char_index]);
                 // reset mistake_on_word if backspacing earliest mistake
                 mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
                 // }
             }
             else if (user_char == SPACE)
             {
-                handle_color_change(quote[x], RED_TEXT);
+                handle_color_change(quote[quote_char_index], RED_TEXT);
+                quote_char_index++;
                 x++;
                 word_index++;
             }
             else
             {
-                if (quote[x] == SPACE)
+                if (quote[quote_char_index] == SPACE)
                 {
                     handle_color_change(UNDERSCORE, RED_TEXT);
+                    quote_char_index++;
                     x++;
                     word_index++;
                 }
                 else
                 {
-                    handle_color_change(quote[x], RED_TEXT);
+                    handle_color_change(quote[quote_char_index], RED_TEXT);
+                    quote_char_index++;
                     x++;
                     word_index++;
                 }
             }
         }
+        if (x == max_width)
+        {
+            y++;
+            x = 0;
+            // move(y, x);
+        }
 
         // break if end of text
-        if (x == quote_length)
+        if (quote_char_index == quote_length)
         {
             break;
         }
@@ -210,6 +224,7 @@ int main(void)
     printf("Took %.1f milliseconds to execute \n", t_ms);
     printf("Took %.1f seconds to execute \n", t_seconds);
     printf("Total mistakes: %d\n", total_mistakes);
+    printf("Terminal width: %d\n", max_width);
     calculate_words_per_minute(t_seconds, quote, total_mistakes, total_correct_words);
 
     return 0;
