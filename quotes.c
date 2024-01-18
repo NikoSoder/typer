@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-const char quotes[][500] = {"So many books, so little time.", "A room without books is like a body without a soul.", "You only live once, but if you do it right, once is enough.", "Be the change that you wish to see in the world.", "If you tell the truth, you don't have to remember anything.", "You've gotta dance like there's nobody watching, Love like you'll never be hurt, Sing like there's nobody listening, And live like it's heaven on earth.", "Don't walk in front of me… I may not follow Don't walk behind me… I may not lead Walk beside me… just be my friend", "I believe that everything happens for a reason. People change so that you can learn to let go, things go wrong so that you appreciate them when they're right, you believe lies so you eventually learn to trust no one but yourself, and sometimes good things fall apart so better things can fall together.", "The opposite of love is not hate, it's indifference. The opposite of art is not ugliness, it's indifference. The opposite of faith is not heresy, it's indifference. And the opposite of life is not death, it's indifference."};
+char quotes[][500] = {"So many books, so little time.", "A room without books is like a body without a soul.", "You only live once, but if you do it right, once is enough.", "Be the change that you wish to see in the world.", "If you tell the truth, you don't have to remember anything.", "You've gotta dance like there's nobody watching, Love like you'll never be hurt, Sing like there's nobody listening, And live like it's heaven on earth.", "Don't walk in front of me... I may not follow Don't walk behind me... I may not lead Walk beside me... just be my friend", "I believe that everything happens for a reason. People change so that you can learn to let go, things go wrong so that you appreciate them when they're right, you believe lies so you eventually learn to trust no one but yourself, and sometimes good things fall apart so better things can fall together.", "The opposite of love is not hate, it's indifference. The opposite of art is not ugliness, it's indifference. The opposite of faith is not heresy, it's indifference. And the opposite of life is not death, it's indifference."};
 
-const char *get_quote()
+char *get_quote()
 {
     // Seed the random number generator with the current time
     srand(time(NULL));
