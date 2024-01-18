@@ -202,6 +202,12 @@ int main(void)
             // refresh();
         }
 
+        // break loop if enter
+        if (user_char == '\n')
+        {
+            break;
+        }
+
         // Add mistake on final word if there is any
         if (mistake_on_word > -1)
         {
