@@ -54,21 +54,14 @@ void handle_color_change(char character, int color)
     attroff(COLOR_PAIR(color)); // Turn off color
 }
 
-int main(void)
+void type()
 {
-    initscr();
-    int max_width, max_height;
-    getmaxyx(stdscr, max_height, max_width);         // Get terminal height and width
-    keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
-    start_color();                                   // Enable color support
-    init_pair(GREEN_TEXT, COLOR_GREEN, COLOR_BLACK); // Define color pair for green
-    init_pair(RED_TEXT, COLOR_RED, COLOR_BLACK);     // Define color pair for red
-    noecho();                                        // hide user input echo
-
     bool type_again = true;
     while (type_again)
     {
         // reset these variables every loop
+        int max_width, max_height;
+        getmaxyx(stdscr, max_height, max_width); // Get terminal height and width
         char *quote = get_quote();
         size_t quote_length = strlen(quote);
         bool timer_started = false;
@@ -90,13 +83,18 @@ int main(void)
         // quote loop
         while ((user_char = getch()) != '\n')
         {
-            // y--; UP
-            // y++; DOWN
-            // x--; LEFT
-            // x++; RIGHT
+            /**
+             * directions
+             *
+             * y--; UP
+             * y++; DOWN
+             * x--; LEFT
+             * x++; RIGHT
+             */
+
+            // Start timer if first loop
             if (!timer_started)
             {
-                // Get the initial time-stamp
                 gettimeofday(&start, NULL);
                 timer_started = true;
             }
@@ -107,7 +105,6 @@ int main(void)
                 continue;
             }
 
-            // todo clean up nesting
             // if RIGHT char
             if (user_char == quote[quote_char_index])
             {
@@ -125,6 +122,7 @@ int main(void)
                 }
             }
             // if WRONG char
+            // todo clean up nesting
             else if (user_char != quote[quote_char_index])
             {
                 // track earliest mistake on word
@@ -145,9 +143,6 @@ int main(void)
                 }
                 else if (user_char == KEY_BACKSPACE)
                 {
-                    // don't move cursor if on first character
-                    // if (x > 0)
-                    // {
                     x--;
                     quote_char_index--;
                     word_index--;
@@ -155,7 +150,6 @@ int main(void)
                     printw("%c", quote[quote_char_index]);
                     // reset mistake_on_word if backspacing earliest mistake
                     mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
-                    // }
                 }
                 else if (user_char == SPACE)
                 {
@@ -182,14 +176,14 @@ int main(void)
                     }
                 }
             }
+            // jump to next line if end of line
             if (x == max_width && user_char != KEY_BACKSPACE)
             {
                 y++;
                 x = 0;
-                // move(y, x);
             }
 
-            // break if end of text
+            // break loop if end of quote
             if (quote_char_index == quote_length)
             {
                 break;
@@ -235,6 +229,15 @@ int main(void)
         // printw("Total mistakes: %d\n", total_mistakes);
         // printw("Terminal width: %d\n", max_width);
         calculate_words_per_minute(t_seconds, quote, total_mistakes, total_correct_words);
+        /**
+         * todo
+         * read file and return biggest wpm
+         * then compare biggest wpm from file to wpm this round
+         * show new record if this round bigger wpm than in file
+         * otherwise show personal best
+         *
+         * what happens if no txt file
+         */
         // clear();
         // refresh();
 
@@ -255,6 +258,18 @@ int main(void)
             refresh();
         }
     }
+}
+
+int main(void)
+{
+    initscr();
+    keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
+    start_color();                                   // Enable color support
+    init_pair(GREEN_TEXT, COLOR_GREEN, COLOR_BLACK); // Define color pair for green
+    init_pair(RED_TEXT, COLOR_RED, COLOR_BLACK);     // Define color pair for red
+    noecho();                                        // hide user input echo
+
+    type();
 
     endwin();
 
