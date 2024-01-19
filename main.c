@@ -229,6 +229,7 @@ void type()
         // printw("Total mistakes: %d\n", total_mistakes);
         // printw("Terminal width: %d\n", max_width);
         calculate_words_per_minute(t_seconds, quote, total_mistakes, total_correct_words);
+
         /**
          * todo
          * read file and return biggest wpm
@@ -238,17 +239,12 @@ void type()
          *
          * what happens if no txt file
          */
-        // clear();
-        // refresh();
 
-        printw("(s) to stop or any other key to type again\n");
-        printw("Go again? ");
-        refresh();
-
+        printw("Go again? (y/n): ");
         // Get user input to determine whether to type again or quit
         int type_again_user_input = getch();
 
-        if (type_again_user_input == 's')
+        if (type_again_user_input == 'n')
         {
             type_again = false;
         }
