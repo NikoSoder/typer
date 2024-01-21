@@ -6,6 +6,7 @@
 #include <math.h>
 #include <ctype.h>
 #include "quotes.h"
+#include <menu.h>
 
 #define GREEN_TEXT 1
 #define RED_TEXT 2
@@ -54,8 +55,10 @@ void handle_color_change(char character, int color)
     attroff(COLOR_PAIR(color)); // Turn off color
 }
 
-void type()
+void type(const char *game_option)
 {
+    clear();
+    refresh();
     bool type_again = true;
     while (type_again)
     {
@@ -256,8 +259,67 @@ void type()
     }
 }
 
+// todo move menu to own file
+char *choices[] = {
+    "Normal mode",
+    "Hard mode",
+    "Exit",
+};
+
+// todo add parameters so menu variables are not hard coded
+ITEM *run_menu()
+{
+    ITEM **my_items;
+    int c;
+    MENU *my_menu;
+    int number_of_choices;
+    ITEM *cur_item;
+
+    number_of_choices = sizeof(choices) / sizeof(choices[0]);
+    my_items = (ITEM **)calloc(number_of_choices + 1, sizeof(ITEM *));
+
+    for (int i = 0; i < number_of_choices; i++)
+    {
+        my_items[i] = new_item(choices[i], "");
+    }
+    my_items[number_of_choices] = (ITEM *)NULL;
+
+    my_menu = new_menu((ITEM **)my_items);
+
+    mvprintw(LINES - 3, 0, "Move with arrow keys or j (down) k (up)");
+    mvprintw(LINES - 2, 0, "F1 to Exit");
+    post_menu(my_menu);
+
+    while ((c = getch()) != KEY_F(1))
+    {
+        switch (c)
+        {
+        case KEY_DOWN:
+        case 'j':
+            menu_driver(my_menu, REQ_DOWN_ITEM);
+            break;
+        case KEY_UP:
+        case 'k':
+            menu_driver(my_menu, REQ_UP_ITEM);
+            break;
+        case 10: // enter
+            cur_item = current_item(my_menu);
+            return cur_item;
+        }
+    }
+
+    free_menu(my_menu);
+    for (int i = 0; i < number_of_choices; ++i)
+    {
+        free_item(my_items[i]);
+    }
+    return NULL;
+}
+
 int main(void)
 {
+    // todo better structure
+    // how to jump from ending screen to start menu
     initscr();
     keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
     start_color();                                   // Enable color support
@@ -265,7 +327,12 @@ int main(void)
     init_pair(RED_TEXT, COLOR_RED, COLOR_BLACK);     // Define color pair for red
     noecho();                                        // hide user input echo
 
-    type();
+    ITEM *menu_option = run_menu();
+    if (menu_option != NULL && strcmp(item_name(menu_option), "Exit") != 0)
+    {
+        const char *option = item_name(menu_option);
+        type(option);
+    }
 
     endwin();
 
