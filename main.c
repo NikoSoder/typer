@@ -14,7 +14,28 @@
 #define SPACE ' '
 #define UNDERSCORE '_'
 
+// Define the states of the program
+enum State
+{
+    STARTING_SCREEN,
+    TYPING,
+    ENDING
+};
+
+enum State current_state = STARTING_SCREEN;
+ITEM *menu_option; // returns option from run_menu()
+
 struct timeval start, end;
+
+void initialize_ncurses()
+{
+    initscr();
+    keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
+    start_color();                                   // Enable color support
+    init_pair(GREEN_TEXT, COLOR_GREEN, COLOR_BLACK); // Define color pair for green
+    init_pair(RED_TEXT, COLOR_RED, COLOR_BLACK);     // Define color pair for red
+    noecho();                                        // hide user input echo
+}
 
 // not the best solution to count words but works for now
 int count_words(const char *text)
@@ -199,9 +220,10 @@ void type(const char *game_option)
             // refresh();
         }
 
-        // break loop if enter
+        // break loop if enter and jump to starting screen
         if (user_char == '\n')
         {
+            current_state = STARTING_SCREEN;
             break;
         }
 
@@ -250,6 +272,7 @@ void type(const char *game_option)
         if (type_again_user_input == 'n')
         {
             type_again = false;
+            current_state = STARTING_SCREEN;
         }
         else
         {
@@ -286,7 +309,7 @@ ITEM *run_menu()
 
     my_menu = new_menu((ITEM **)my_items);
 
-    mvprintw(LINES - 3, 0, "Move with arrow keys or j (down) k (up)");
+    mvprintw(LINES - 3, 0, "j/k: move down and up or with arrow keys");
     mvprintw(LINES - 2, 0, "F1 to Exit");
     post_menu(my_menu);
 
@@ -316,23 +339,41 @@ ITEM *run_menu()
     return NULL;
 }
 
+// program structure
+void run_program()
+{
+    while (current_state != ENDING)
+    {
+        clear();
+
+        switch (current_state)
+        {
+        case STARTING_SCREEN:
+            menu_option = run_menu();
+            if (menu_option != NULL && strcmp(item_name(menu_option), "Exit") != 0)
+            {
+                current_state = TYPING;
+            }
+            else
+            {
+                current_state = ENDING;
+            }
+            break;
+        case TYPING:
+            const char *option = item_name(menu_option);
+            type(option);
+            break;
+        }
+
+        refresh();
+    }
+}
+
 int main(void)
 {
-    // todo better structure
-    // how to jump from ending screen to start menu
-    initscr();
-    keypad(stdscr, TRUE);                            // Enable special keys, such as function keys
-    start_color();                                   // Enable color support
-    init_pair(GREEN_TEXT, COLOR_GREEN, COLOR_BLACK); // Define color pair for green
-    init_pair(RED_TEXT, COLOR_RED, COLOR_BLACK);     // Define color pair for red
-    noecho();                                        // hide user input echo
+    initialize_ncurses();
 
-    ITEM *menu_option = run_menu();
-    if (menu_option != NULL && strcmp(item_name(menu_option), "Exit") != 0)
-    {
-        const char *option = item_name(menu_option);
-        type(option);
-    }
+    run_program();
 
     endwin();
 
