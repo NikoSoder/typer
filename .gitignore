@@ -1,2 +1,7 @@
 .vscode
+
+# Ignore compiled files
+*.o
+*.out
+*.exe
 bin

@@ -19,6 +19,7 @@ run executable file with:
 - [x] Track words per minute
 - [x] Create starting screen
 - [ ] Show personal best (wpm)
+- [ ] Fix compile errors
 - [ ] Add hard mode
 - [ ] Better count words logic
 - [x] Add multiple quotes
