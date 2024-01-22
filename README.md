@@ -2,7 +2,7 @@
 
 Compile:
 
-`gcc main.c quotes.c -o bin/main -lncurses -lm`
+`gcc main.c quotes.c menu_interface.c -o bin/main -lncurses -lmenu -lm`
 
 run executable file with:
 
@@ -17,8 +17,10 @@ run executable file with:
 - [x] Track final word mistake
 - [x] Don't go back to previous word
 - [x] Track words per minute
-- [ ] Create starting screen. (start and quit)
+- [x] Create starting screen
 - [ ] Show personal best (wpm)
+- [ ] Add hard mode
+- [ ] Better count words logic
 - [x] Add multiple quotes
 - [ ] Write score(wpm) to file
 - [x] Fix quote on multiple lines
