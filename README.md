@@ -1,12 +1,32 @@
+## Introduction
+Terminal typing game written in C
+
 ## How to run 
 
-Compile:
+### on Linux
+Requirements:
+- GCC (GNU Compiler Collection)
+- Make
+- ncurses `sudo apt-get install libncurses5-dev libncursesw5-dev`
 
-`gcc main.c quotes.c menu_interface.c -o bin/main -lncurses -lmenu -lm`
+Compile with:
 
-run executable file with:
+`make`
 
-`bin/main`
+If you want to perform a clean build, you can run: `make clean`
+
+run your program with:
+
+`bin/type`
+
+## How is WPM calculated?
+
+$
+WPM = \frac{{words \, typed \, correctly}}{{time \, taken \, in \, minutes}}
+$
+
+> [!NOTE]
+> For now, any sequence of characters separated by a space is counted as a word.
 
 ## TODO
 
@@ -26,5 +46,3 @@ run executable file with:
 - [ ] Write score(wpm) to file
 - [x] Fix quote on multiple lines
 - [x] Fix backspace on multiple lines
-
-## Known bugs
