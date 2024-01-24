@@ -77,6 +77,28 @@ void handle_color_change(char character, int color)
     attroff(COLOR_PAIR(color)); // Turn off color
 }
 
+void get_type_again_option(bool *type_again)
+{
+    while (true)
+    {
+        int type_again_user_input = getch();
+
+        if (type_again_user_input == 'n')
+        {
+            *type_again = false;
+            // jump to starting screen if type again is no
+            current_state = STARTING_SCREEN;
+            break;
+        }
+        else if (type_again_user_input == 'y')
+        {
+            clear();
+            refresh();
+            break;
+        }
+    }
+}
+
 void type(const char *game_option)
 {
     clear();
@@ -276,18 +298,7 @@ void type(const char *game_option)
 
         printw("Go again? (y/n): ");
         // Get user input to determine whether to type again or quit
-        int type_again_user_input = getch();
-
-        if (type_again_user_input == 'n')
-        {
-            type_again = false;
-            current_state = STARTING_SCREEN;
-        }
-        else
-        {
-            clear();
-            refresh();
-        }
+        get_type_again_option(&type_again);
     }
 }
 
