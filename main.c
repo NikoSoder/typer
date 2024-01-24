@@ -42,7 +42,7 @@ void initialize_ncurses()
 int count_words(const char *text)
 {
     int word_count = 0;
-    for (int i = 0; i < strlen(text); i++)
+    for (size_t i = 0; i < strlen(text); i++)
     {
         if (isspace(text[i]))
         {
@@ -93,13 +93,13 @@ void type(const char *game_option)
         int user_char;
         int x = 0;
         int y = 0;
-        int quote_char_index = 0;
+        size_t quote_char_index = 0;
 
         printw("%s\n", quote);
         move(y, x); // move cursor to top of first letter
 
         int total_correct_words = 0;
-        int total_mistakes = 0;
+        int total_mistakes = 0; // todo is this needed?
         // variable to store the current word's length
         int word_index = 0;
         // variable to store the earliest index where a mistake occurs within the current word
@@ -140,8 +140,16 @@ void type(const char *game_option)
                 // reset mistake variables if next word
                 if (user_char == SPACE)
                 {
-                    total_correct_words = mistake_on_word == -1 ? total_correct_words += 1 : total_correct_words;
-                    total_mistakes = mistake_on_word > -1 ? total_mistakes += 1 : total_mistakes;
+                    // if no mistakes on word
+                    if (mistake_on_word == -1)
+                    {
+                        total_correct_words++;
+                    }
+                    else
+                    {
+                        total_mistakes++;
+                    }
+
                     word_index = 0;
                     mistake_on_word = -1;
                 }
