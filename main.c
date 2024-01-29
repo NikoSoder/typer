@@ -258,7 +258,7 @@ void calculate_words_per_minute(double seconds, const char *quote, int mistakes,
     double time_taken_minutes = seconds / 60.0;
     int wpm = round((double)correct_words / time_taken_minutes);
 
-    printw("Words per minute wpm: %d\n", wpm);
+    printw("Words per minute: %d\n", wpm);
 }
 
 void calculate_statistics(struct timeval start, struct timeval end, char *quote, int total_mistakes, int total_correct_words)
