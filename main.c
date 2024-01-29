@@ -38,6 +38,197 @@ void initialize_ncurses()
     noecho();                                        // hide user input echo
 }
 
+void handle_color_change(char character, int color)
+{
+    attron(COLOR_PAIR(color)); // Turn on color
+    printw("%c", character);
+    attroff(COLOR_PAIR(color)); // Turn off color
+}
+
+void clear_and_refresh()
+{
+    clear();
+    refresh();
+}
+
+void get_type_again_option(bool *type_again)
+{
+    while (true)
+    {
+        int type_again_user_input = getch();
+
+        if (type_again_user_input == 'n')
+        {
+            *type_again = false;
+            // jump to starting screen if type again is no
+            current_state = STARTING_SCREEN;
+            break;
+        }
+        else if (type_again_user_input == 'y')
+        {
+            clear_and_refresh();
+            break;
+        }
+    }
+}
+
+bool handle_typing(char *quote, size_t quote_length, int max_width, int *total_correct_words, int *total_mistakes)
+{
+    int user_char;
+    int x = 0;
+    int y = 0;
+    bool timer_started = false;
+    size_t quote_char_index = 0;
+    int word_index = 0;
+    // variable to store the earliest index where a mistake occurs within the current word
+    int mistake_on_word = -1;
+
+    printw("%s\n", quote);
+    move(y, x); // move cursor to top of first letter
+
+    // quote loop
+    while ((user_char = getch()) != '\n')
+    {
+        /**
+         * directions
+         *
+         * y--; UP
+         * y++; DOWN
+         * x--; LEFT
+         * x++; RIGHT
+         */
+
+        // Start timer if first loop
+        if (!timer_started)
+        {
+            gettimeofday(&start, NULL);
+            timer_started = true;
+        }
+
+        // don't go back if on first letter
+        if (user_char == KEY_BACKSPACE && word_index == 0)
+        {
+            continue;
+        }
+
+        // if RIGHT char
+        if (user_char == quote[quote_char_index])
+        {
+            handle_color_change(user_char, GREEN_TEXT);
+            x++;
+            quote_char_index++;
+            word_index++;
+            // reset mistake variables if next word
+            if (user_char == SPACE)
+            {
+                // if no mistakes on word
+                if (mistake_on_word == -1)
+                {
+                    (*total_correct_words)++;
+                }
+                else
+                {
+                    (*total_mistakes)++;
+                }
+
+                word_index = 0;
+                mistake_on_word = -1;
+            }
+        }
+        // if WRONG char
+        // todo clean up nesting
+        else if (user_char != quote[quote_char_index])
+        {
+            // track earliest mistake on word
+            if (user_char != KEY_BACKSPACE && mistake_on_word == -1)
+            {
+                mistake_on_word = word_index;
+            }
+
+            if (user_char == KEY_BACKSPACE && x == 0)
+            {
+                y--;
+                x = max_width - 1;
+                word_index--;
+                quote_char_index--;
+                move(y, x);
+                printw("%c", quote[quote_char_index]);
+                mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
+            }
+            else if (user_char == KEY_BACKSPACE)
+            {
+                x--;
+                quote_char_index--;
+                word_index--;
+                move(y, x);
+                printw("%c", quote[quote_char_index]);
+                // reset mistake_on_word if backspacing earliest mistake
+                mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
+            }
+            else if (user_char == SPACE)
+            {
+                handle_color_change(quote[quote_char_index], RED_TEXT);
+                quote_char_index++;
+                x++;
+                word_index++;
+            }
+            else
+            {
+                if (quote[quote_char_index] == SPACE)
+                {
+                    handle_color_change(UNDERSCORE, RED_TEXT);
+                    quote_char_index++;
+                    x++;
+                    word_index++;
+                }
+                else
+                {
+                    handle_color_change(quote[quote_char_index], RED_TEXT);
+                    quote_char_index++;
+                    x++;
+                    word_index++;
+                }
+            }
+        }
+        // jump to next line if end of line
+        if (x == max_width && user_char != KEY_BACKSPACE)
+        {
+            y++;
+            x = 0;
+        }
+
+        // break loop if end of quote
+        if (quote_char_index == quote_length)
+        {
+            break;
+        }
+
+        // Move the cursor to the new position
+        move(y, x);
+
+        // Refresh the screen
+        // refresh();
+    }
+
+    // break loop if enter key is pressed
+    if (user_char == '\n')
+    {
+        return true;
+    }
+
+    // Add mistake on final word if there is any
+    if (mistake_on_word > -1)
+    {
+        (total_mistakes)++;
+    }
+    if (mistake_on_word == -1)
+    {
+        (*total_correct_words)++;
+    }
+
+    return false;
+}
+
 // not the best solution to count words but works for now
 int count_words(const char *text)
 {
@@ -70,234 +261,53 @@ void calculate_words_per_minute(double seconds, const char *quote, int mistakes,
     printw("Words per minute wpm: %d\n", wpm);
 }
 
-void handle_color_change(char character, int color)
+void calculate_statistics(struct timeval start, struct timeval end, char *quote, int total_mistakes, int total_correct_words)
 {
-    attron(COLOR_PAIR(color)); // Turn on color
-    printw("%c", character);
-    attroff(COLOR_PAIR(color)); // Turn off color
+    // Calculate the elapsed time in milliseconds
+    double t_ms = (double)(end.tv_sec - start.tv_sec) * 1000.0 +
+                  (double)(end.tv_usec - start.tv_usec) / 1000.0;
+
+    // Convert time to seconds with one decimal place
+    double t_seconds = round(t_ms / 1000.0 * 10.0) / 10.0;
+
+    // printw("Took %.1f milliseconds to execute \n", t_ms);
+    printw("Took %.1f seconds to type \n", t_seconds);
+    // printw("Total mistakes: %d\n", total_mistakes);
+    // printw("Terminal width: %d\n", max_width);
+    calculate_words_per_minute(t_seconds, quote, total_mistakes, total_correct_words);
 }
 
-void get_type_again_option(bool *type_again)
-{
-    while (true)
-    {
-        int type_again_user_input = getch();
-
-        if (type_again_user_input == 'n')
-        {
-            *type_again = false;
-            // jump to starting screen if type again is no
-            current_state = STARTING_SCREEN;
-            break;
-        }
-        else if (type_again_user_input == 'y')
-        {
-            clear();
-            refresh();
-            break;
-        }
-    }
-}
-
+// main typing function
 void type(const char *game_option)
 {
-    clear();
-    refresh();
+    clear_and_refresh();
+
     bool type_again = true;
+
     while (type_again)
     {
-        // reset these variables every loop
         int max_width, max_height;
-        getmaxyx(stdscr, max_height, max_width); // Get terminal height and width
+        getmaxyx(stdscr, max_height, max_width);
         char *quote = get_quote();
         size_t quote_length = strlen(quote);
-        bool timer_started = false;
-        int user_char;
-        int x = 0;
-        int y = 0;
-        size_t quote_char_index = 0;
-
-        printw("%s\n", quote);
-        move(y, x); // move cursor to top of first letter
-
         int total_correct_words = 0;
-        int total_mistakes = 0; // todo is this needed?
-        // variable to store the current word's length
-        int word_index = 0;
-        // variable to store the earliest index where a mistake occurs within the current word
-        int mistake_on_word = -1;
+        int total_mistakes = 0;
 
-        // quote loop
-        while ((user_char = getch()) != '\n')
-        {
-            /**
-             * directions
-             *
-             * y--; UP
-             * y++; DOWN
-             * x--; LEFT
-             * x++; RIGHT
-             */
-
-            // Start timer if first loop
-            if (!timer_started)
-            {
-                gettimeofday(&start, NULL);
-                timer_started = true;
-            }
-
-            // don't go back if on first letter
-            if (user_char == KEY_BACKSPACE && word_index == 0)
-            {
-                continue;
-            }
-
-            // if RIGHT char
-            if (user_char == quote[quote_char_index])
-            {
-                handle_color_change(user_char, GREEN_TEXT);
-                x++;
-                quote_char_index++;
-                word_index++;
-                // reset mistake variables if next word
-                if (user_char == SPACE)
-                {
-                    // if no mistakes on word
-                    if (mistake_on_word == -1)
-                    {
-                        total_correct_words++;
-                    }
-                    else
-                    {
-                        total_mistakes++;
-                    }
-
-                    word_index = 0;
-                    mistake_on_word = -1;
-                }
-            }
-            // if WRONG char
-            // todo clean up nesting
-            else if (user_char != quote[quote_char_index])
-            {
-                // track earliest mistake on word
-                if (user_char != KEY_BACKSPACE && mistake_on_word == -1)
-                {
-                    mistake_on_word = word_index;
-                }
-
-                if (user_char == KEY_BACKSPACE && x == 0)
-                {
-                    y--;
-                    x = max_width - 1;
-                    word_index--;
-                    quote_char_index--;
-                    move(y, x);
-                    printw("%c", quote[quote_char_index]);
-                    mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
-                }
-                else if (user_char == KEY_BACKSPACE)
-                {
-                    x--;
-                    quote_char_index--;
-                    word_index--;
-                    move(y, x);
-                    printw("%c", quote[quote_char_index]);
-                    // reset mistake_on_word if backspacing earliest mistake
-                    mistake_on_word = mistake_on_word == word_index ? -1 : mistake_on_word;
-                }
-                else if (user_char == SPACE)
-                {
-                    handle_color_change(quote[quote_char_index], RED_TEXT);
-                    quote_char_index++;
-                    x++;
-                    word_index++;
-                }
-                else
-                {
-                    if (quote[quote_char_index] == SPACE)
-                    {
-                        handle_color_change(UNDERSCORE, RED_TEXT);
-                        quote_char_index++;
-                        x++;
-                        word_index++;
-                    }
-                    else
-                    {
-                        handle_color_change(quote[quote_char_index], RED_TEXT);
-                        quote_char_index++;
-                        x++;
-                        word_index++;
-                    }
-                }
-            }
-            // jump to next line if end of line
-            if (x == max_width && user_char != KEY_BACKSPACE)
-            {
-                y++;
-                x = 0;
-            }
-
-            // break loop if end of quote
-            if (quote_char_index == quote_length)
-            {
-                break;
-            }
-
-            // Move the cursor to the new position
-            move(y, x);
-
-            // Refresh the screen
-            // refresh();
-        }
-
-        // break loop if enter and jump to starting screen
-        if (user_char == '\n')
+        bool enter_pressed = handle_typing(quote, quote_length, max_width, &total_correct_words, &total_mistakes);
+        if (enter_pressed)
         {
             current_state = STARTING_SCREEN;
             break;
         }
 
-        // Add mistake on final word if there is any
-        if (mistake_on_word > -1)
-        {
-            total_mistakes++;
-        }
-        if (mistake_on_word == -1)
-        {
-            total_correct_words++;
-        }
+        clear_and_refresh();
 
-        clear();
-        refresh();
-        //  Get the final time-stamp
+        struct timeval end;
         gettimeofday(&end, NULL);
 
-        // Calculate the elapsed time in milliseconds
-        double t_ms = (double)(end.tv_sec - start.tv_sec) * 1000.0 +
-                      (double)(end.tv_usec - start.tv_usec) / 1000.0;
-
-        // Convert time to seconds with one decimal place
-        double t_seconds = round(t_ms / 1000.0 * 10.0) / 10.0;
-
-        // printw("Took %.1f milliseconds to execute \n", t_ms);
-        printw("Took %.1f seconds to type \n", t_seconds);
-        // printw("Total mistakes: %d\n", total_mistakes);
-        // printw("Terminal width: %d\n", max_width);
-        calculate_words_per_minute(t_seconds, quote, total_mistakes, total_correct_words);
-
-        /**
-         * todo
-         * read file and return biggest wpm
-         * then compare biggest wpm from file to wpm this round
-         * show new record if this round bigger wpm than in file
-         * otherwise show personal best
-         *
-         * what happens if no txt file
-         */
+        calculate_statistics(start, end, quote, total_mistakes, total_correct_words);
 
         printw("Go again? (y/n): ");
-        // Get user input to determine whether to type again or quit
         get_type_again_option(&type_again);
     }
 }
@@ -307,7 +317,7 @@ void run_program()
 {
     while (current_state != ENDING)
     {
-        clear();
+        clear_and_refresh();
 
         switch (current_state)
         {
@@ -328,7 +338,7 @@ void run_program()
             break;
         }
 
-        refresh();
+        clear_and_refresh();
     }
 }
 
