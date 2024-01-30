@@ -60,7 +60,6 @@ void get_type_again_option(bool *type_again)
         if (type_again_user_input == 'n')
         {
             *type_again = false;
-            // jump to starting screen if type again is no
             current_state = STARTING_SCREEN;
             break;
         }
@@ -72,7 +71,7 @@ void get_type_again_option(bool *type_again)
     }
 }
 
-bool handle_typing(char *quote, size_t quote_length, int max_width, int *total_correct_words, int *total_mistakes)
+bool handle_typing(char *quote, size_t quote_length, int max_width, int *total_correct_words, int *total_mistakes, const char *game_option)
 {
     int user_char;
     int x = 0;
@@ -139,6 +138,12 @@ bool handle_typing(char *quote, size_t quote_length, int max_width, int *total_c
         // todo clean up nesting
         else if (user_char != quote[quote_char_index])
         {
+            if (strcmp(game_option, "Hard mode") == 0)
+            {
+                mistake_on_word = word_index;
+                break;
+            }
+
             // track earliest mistake on word
             if (user_char != KEY_BACKSPACE && mistake_on_word == -1)
             {
@@ -255,10 +260,14 @@ void calculate_words_per_minute(double seconds, const char *quote, int mistakes,
     // printw("Total correct words %d\n", correct_words);
 
     // Convert time to minutes and calculate WPM
-    double time_taken_minutes = seconds / 60.0;
-    int wpm = round((double)correct_words / time_taken_minutes);
-
-    printw("Words per minute: %d\n", wpm);
+    if (correct_words > 0)
+    {
+        double time_taken_minutes = seconds / 60.0;
+        int wpm = round((double)correct_words / time_taken_minutes);
+        printw("Words per minute: %d\n", wpm);
+        return;
+    }
+    printw("Words per minute: 0\n");
 }
 
 void calculate_statistics(struct timeval start, struct timeval end, char *quote, int total_mistakes, int total_correct_words)
@@ -293,7 +302,7 @@ void type(const char *game_option)
         int total_correct_words = 0;
         int total_mistakes = 0;
 
-        bool enter_pressed = handle_typing(quote, quote_length, max_width, &total_correct_words, &total_mistakes);
+        bool enter_pressed = handle_typing(quote, quote_length, max_width, &total_correct_words, &total_mistakes, game_option);
         if (enter_pressed)
         {
             current_state = STARTING_SCREEN;
@@ -302,7 +311,6 @@ void type(const char *game_option)
 
         clear_and_refresh();
 
-        struct timeval end;
         gettimeofday(&end, NULL);
 
         calculate_statistics(start, end, quote, total_mistakes, total_correct_words);
