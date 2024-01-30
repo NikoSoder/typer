@@ -23,9 +23,9 @@ run your program with:
 
 ## How is WPM calculated?
 
-$
-WPM = \frac{{words \, typed \, correctly}}{{time \, taken \, in \, minutes}}
-$
+$$
+WPM = \frac{{words \ typed \ correctly}}{{time \ taken \ in \ minutes}}
+$$
 
 > [!NOTE]
 > For now, any sequence of characters separated by space is counted as a word.
